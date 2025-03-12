@@ -24,80 +24,110 @@ const Layout: React.FC<LayoutProps> = ({
   stats 
 }) => {
   const [currentPage, setCurrentPage] = useState<'todolist' | 'advice' | 'statistics'>('todolist');
+  const [isNavExpanded, setIsNavExpanded] = useState(false);
 
   return (
     <div className="flex h-screen">
-      {/* 左侧导航栏 */}
-      <motion.div
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        className={`w-64 h-screen fixed left-0 top-0 ${
+      {/* 导航栏切换按钮 */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsNavExpanded(!isNavExpanded)}
+        className={`fixed left-4 top-4 z-50 p-3 rounded-lg shadow-lg ${
           isDark 
-            ? 'bg-gray-800/95 border-r border-gray-700' 
-            : 'bg-white/95 border-r border-gray-200'
-        } backdrop-blur-lg p-6`}
+            ? 'bg-gray-800/95 text-white hover:bg-gray-700/95' 
+            : 'bg-white/95 text-gray-800 hover:bg-gray-100/95'
+        } backdrop-blur-sm transition-colors`}
       >
-        <h2 className={`text-2xl font-bold mb-8 ${
-          isDark ? 'text-white' : 'text-gray-800'
-        }`}>
-          ✨ Todo App
-        </h2>
-        
-        <nav className="space-y-2">
-          <button
-            onClick={() => setCurrentPage('todolist')}
-            className={`w-full p-3 rounded-lg text-left transition-all ${
-              currentPage === 'todolist'
-                ? isDark
-                  ? 'bg-blue-600/20 text-blue-300'
-                  : 'bg-blue-100 text-blue-600'
-                : isDark
-                  ? 'text-gray-300 hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:bg-gray-100'
-            }`}
+        {isNavExpanded ? '✖️' : '📋'}
+      </motion.button>
+
+      {/* 左侧导航栏 */}
+      <AnimatePresence>
+        {isNavExpanded && (
+          <motion.div
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`w-64 h-screen fixed left-0 top-0 ${
+              isDark 
+                ? 'bg-gray-800/95 border-r border-gray-700' 
+                : 'bg-white/95 border-r border-gray-200'
+            } backdrop-blur-lg p-6 pt-16`}
           >
-            📝 待办事项
-          </button>
-          <button
-            onClick={() => setCurrentPage('statistics')}
-            className={`w-full p-3 rounded-lg text-left transition-all ${
-              currentPage === 'statistics'
-                ? isDark
-                  ? 'bg-blue-600/20 text-blue-300'
-                  : 'bg-blue-100 text-blue-600'
-                : isDark
-                  ? 'text-gray-300 hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            📊 统计
-          </button>
-          <button
-            onClick={() => setCurrentPage('advice')}
-            className={`w-full p-3 rounded-lg text-left transition-all ${
-              currentPage === 'advice'
-                ? isDark
-                  ? 'bg-blue-600/20 text-blue-300'
-                  : 'bg-blue-100 text-blue-600'
-                : isDark
-                  ? 'text-gray-300 hover:bg-gray-700/50'
-                  : 'text-gray-600 hover:bg-gray-100'
-            }`}
-          >
-            💡 应用建议
-            {appliedAdvices.length > 0 && (
-              <span className={`ml-2 px-2 py-1 rounded-full text-sm ${
-                isDark ? 'bg-blue-900/50 text-blue-200' : 'bg-blue-100 text-blue-600'
-              }`}>
-                {appliedAdvices.length}
-              </span>
-            )}
-          </button>
-        </nav>
-      </motion.div>
+            <h2 className={`text-2xl font-bold mb-8 ${
+              isDark ? 'text-white' : 'text-gray-800'
+            }`}>
+              ✨ Todo App
+            </h2>
+            
+            <nav className="space-y-2">
+              <button
+                onClick={() => {
+                  setCurrentPage('todolist');
+                  setIsNavExpanded(false);
+                }}
+                className={`w-full p-3 rounded-lg text-left transition-all ${
+                  currentPage === 'todolist'
+                    ? isDark
+                      ? 'bg-blue-600/20 text-blue-300'
+                      : 'bg-blue-100 text-blue-600'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-700/50'
+                      : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                📝 待办事项
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentPage('statistics');
+                  setIsNavExpanded(false);
+                }}
+                className={`w-full p-3 rounded-lg text-left transition-all ${
+                  currentPage === 'statistics'
+                    ? isDark
+                      ? 'bg-blue-600/20 text-blue-300'
+                      : 'bg-blue-100 text-blue-600'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-700/50'
+                      : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                📊 统计
+              </button>
+              <button
+                onClick={() => {
+                  setCurrentPage('advice');
+                  setIsNavExpanded(false);
+                }}
+                className={`w-full p-3 rounded-lg text-left transition-all ${
+                  currentPage === 'advice'
+                    ? isDark
+                      ? 'bg-blue-600/20 text-blue-300'
+                      : 'bg-blue-100 text-blue-600'
+                    : isDark
+                      ? 'text-gray-300 hover:bg-gray-700/50'
+                      : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                💡 应用建议
+                {appliedAdvices.length > 0 && (
+                  <span className={`ml-2 px-2 py-1 rounded-full text-sm ${
+                    isDark ? 'bg-blue-900/50 text-blue-200' : 'bg-blue-100 text-blue-600'
+                  }`}>
+                    {appliedAdvices.length}
+                  </span>
+                )}
+              </button>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 ml-64">
+      <div className={`flex-1 transition-all ${isNavExpanded ? 'ml-64' : 'ml-0'}`}>
         {currentPage === 'todolist' ? (
           children
         ) : currentPage === 'statistics' ? (

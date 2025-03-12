@@ -42,6 +42,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [appliedAdvices, setAppliedAdvices] = useState<string[]>([]);
+  const [showOptions, setShowOptions] = useState(false);
 
   // 从 localStorage 加载用户数据和待办事项
   useEffect(() => {
@@ -259,9 +260,9 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
       onRemoveAdvice={(index) => setAppliedAdvices(prev => prev.filter((_, i) => i !== index))}
       stats={stats}
     >
-      <div className="p-8 space-y-8">
+      <div className="p-4 md:p-8 space-y-6 md:space-y-8">
         {/* 用户信息区域 */}
-        <div className={`flex items-center justify-between ${
+        <div className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
           isDark ? 'text-white' : 'text-gray-800'
         }`}>
           <div className="flex items-center gap-4">
@@ -339,15 +340,15 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
           isDark ? 'border-white/5' : 'border-white/20'
         } shadow-2xl rounded-3xl overflow-hidden`}>
           {/* 标题 */}
-          <div className={`px-8 pt-8 pb-4`}>
+          <div className={`px-6 md:px-8 pt-6 md:pt-8 pb-4`}>
             <motion.h1 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`text-3xl font-bold flex items-center gap-3 ${
+              className={`text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-3 ${
                 isDark ? 'text-white' : 'text-gray-800'
               }`}
             >
-              <span className="text-4xl">📝</span>
+              <span className="text-2xl sm:text-3xl md:text-4xl">📝</span>
               <span className="bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text">
                 TODOLIST
               </span>
@@ -355,14 +356,14 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
           </div>
 
           {/* 主输入框 */}
-          <div className="px-8 pb-8">
+          <div className="px-6 md:px-8 pb-6 md:pb-8">
             <div className="relative">
               <input
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="✨ 写下你想完成的事情..."
-                className={`w-full text-xl px-8 py-6 rounded-2xl transition-all ${
+                className={`w-full text-base sm:text-lg md:text-xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 rounded-2xl transition-all ${
                   isDark 
                     ? 'bg-gray-800/30 text-white placeholder-gray-400 focus:bg-gray-800/50'
                     : 'bg-white/50 text-gray-800 placeholder-gray-400 focus:bg-white/80'
@@ -370,169 +371,179 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   isDark ? 'border-gray-700/50' : 'border-gray-200/50'
                 } focus:border-blue-500/30 outline-none shadow-inner`}
               />
-              <div className={`absolute right-6 top-1/2 transform -translate-y-1/2 flex items-center gap-3`}>
-                {inputText.length > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className={`text-lg ${isDark ? 'text-blue-400' : 'text-blue-500'}`}
-                  >
-                    ✍️
-                  </motion.span>
-                )}
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowOptions(!showOptions)}
+                className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${
+                  isDark
+                    ? 'hover:bg-gray-700/50 text-gray-300'
+                    : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              >
+                {showOptions ? '⬆️' : '⬇️'}
+              </motion.button>
             </div>
           </div>
 
           {/* 选项区域 */}
-          <div className={`px-8 pb-8 flex flex-wrap items-center gap-4`}>
-            {/* 优先级选择 */}
-            <div className={`flex items-center gap-3 px-5 py-3 rounded-xl ${
-              isDark ? 'bg-gray-800/30' : 'bg-white/50'
-            } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
-              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                优先级
-              </span>
-              <div className="flex gap-2">
-                {['low', 'medium', 'high'].map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPriority(p as 'low' | 'medium' | 'high')}
-                    className={`px-3 py-1.5 rounded-lg text-sm transition-all ${
-                      priority === p
-                        ? isDark
-                          ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                          : 'bg-blue-100 text-blue-600 border-blue-200'
-                        : isDark
-                          ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
-                          : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                    } border`}
-                  >
-                    {{
-                      low: '🟢 低',
-                      medium: '🟡 中',
-                      high: '🔴 高'
-                    }[p]}
-                  </button>
-                ))}
-              </div>
-            </div>
+          <AnimatePresence>
+            {showOptions && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className={`px-6 md:px-8 pb-6 md:pb-8 space-y-4`}
+              >
+                <div className="flex flex-wrap items-center gap-4">
+                  {/* 优先级选择 */}
+                  <div className={`flex items-center gap-3 px-4 md:px-5 py-2 md:py-3 rounded-xl ${
+                    isDark ? 'bg-gray-800/30' : 'bg-white/50'
+                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
+                    <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      优先级
+                    </span>
+                    <div className="flex gap-2">
+                      {['low', 'medium', 'high'].map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setPriority(p as 'low' | 'medium' | 'high')}
+                          className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                            priority === p
+                              ? isDark
+                                ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                                : 'bg-blue-100 text-blue-600 border-blue-200'
+                              : isDark
+                                ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
+                                : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                          } border`}
+                        >
+                          {{
+                            low: '🟢 低',
+                            medium: '🟡 中',
+                            high: '🔴 高'
+                          }[p]}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
 
-            {/* 分类选择 */}
-            <div className={`flex items-center gap-3 px-5 py-3 rounded-xl ${
-              isDark ? 'bg-gray-800/30' : 'bg-white/50'
-            } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
-              <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                分类
-              </span>
-              {isAddingCategory ? (
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={customCategory}
-                    onChange={(e) => setCustomCategory(e.target.value)}
-                    placeholder="新分类名称..."
-                    className={`px-4 py-1.5 rounded-lg text-sm ${
-                      isDark
-                        ? 'bg-gray-700/50 text-gray-200 border-gray-600/50'
-                        : 'bg-white text-gray-700 border-gray-200/50'
-                    } border outline-none focus:border-blue-500/50`}
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCustomCategorySubmit}
-                    className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
-                      isDark
-                        ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30'
-                        : 'bg-green-100 text-green-600 hover:bg-green-200'
-                    }`}
-                  >
-                    确认
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCancelCustomCategory}
-                    className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
-                      isDark
-                        ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
-                        : 'bg-red-100 text-red-600 hover:bg-red-200'
-                    }`}
-                  >
-                    取消
-                  </motion.button>
+                  {/* 分类选择 */}
+                  <div className={`flex items-center gap-3 px-4 md:px-5 py-2 md:py-3 rounded-xl ${
+                    isDark ? 'bg-gray-800/30' : 'bg-white/50'
+                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
+                    <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                      分类
+                    </span>
+                    {isAddingCategory ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={customCategory}
+                          onChange={(e) => setCustomCategory(e.target.value)}
+                          placeholder="新分类名称..."
+                          className={`px-4 py-1.5 rounded-lg text-sm ${
+                            isDark
+                              ? 'bg-gray-700/50 text-gray-200 border-gray-600/50'
+                              : 'bg-white text-gray-700 border-gray-200/50'
+                          } border outline-none focus:border-blue-500/50`}
+                        />
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleCustomCategorySubmit}
+                          className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
+                            isDark
+                              ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30'
+                              : 'bg-green-100 text-green-600 hover:bg-green-200'
+                          }`}
+                        >
+                          确认
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleCancelCustomCategory}
+                          className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
+                            isDark
+                              ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
+                              : 'bg-red-100 text-red-600 hover:bg-red-200'
+                          }`}
+                        >
+                          取消
+                        </motion.button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 flex-wrap">
+                        {allCategories.map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => setCategory(cat)}
+                            className={`px-3 md:px-4 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                              category === cat
+                                ? isDark
+                                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
+                                  : 'bg-blue-100 text-blue-600 border-blue-200'
+                                : isDark
+                                  ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
+                                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                            } border`}
+                          >
+                            📁 {cat}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => setIsAddingCategory(true)}
+                          className={`px-3 md:px-4 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                            isDark
+                              ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
+                              : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
+                          } border`}
+                        >
+                          ➕ 新分类
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="flex gap-2 flex-wrap">
-                  {allCategories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCategory(cat)}
-                      className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
-                        category === cat
-                          ? isDark
-                            ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
-                            : 'bg-blue-100 text-blue-600 border-blue-200'
-                          : isDark
-                            ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
-                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                      } border`}
-                    >
-                      📁 {cat}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setIsAddingCategory(true)}
-                    className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
-                      isDark
-                        ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
-                        : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                    } border`}
-                  >
-                    ➕ 新分类
-                  </button>
-                </div>
-              )}
-            </div>
 
-            <div className="flex-1"></div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={editingId ? saveEdit : addTodo}
-              disabled={!inputText.trim()}
-              className={`px-8 py-3 rounded-xl transition-all flex items-center gap-2 ${
-                !inputText.trim() 
-                  ? isDark 
-                    ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : isDark 
-                    ? 'bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-400/80 hover:to-blue-500/80 text-white' 
-                    : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white'
-              } shadow-lg`}
-            >
-              <span className="text-xl">{editingId ? '💾' : '✨'}</span>
-              <span className="font-medium">{editingId ? '保存更改' : '添加任务'}</span>
-            </motion.button>
-          </div>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={editingId ? saveEdit : addTodo}
+                  disabled={!inputText.trim()}
+                  className={`w-full md:w-auto px-6 md:px-8 py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                    !inputText.trim() 
+                      ? isDark 
+                        ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' 
+                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : isDark 
+                        ? 'bg-gradient-to-r from-blue-500/80 to-blue-600/80 hover:from-blue-400/80 hover:to-blue-500/80 text-white' 
+                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white'
+                  } shadow-lg`}
+                >
+                  <span className="text-xl">{editingId ? '💾' : '✨'}</span>
+                  <span className="font-medium">{editingId ? '保存更改' : '添加任务'}</span>
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* 任务列表区域 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
           {/* 未完成任务 */}
-          <div className={`relative p-8 rounded-2xl shadow-lg ${
+          <div className={`relative p-4 md:p-8 rounded-2xl shadow-lg ${
             isDark ? 'bg-gray-800/50' : 'bg-white/80'
           } backdrop-blur-xl border ${
             isDark ? 'border-white/5' : 'border-gray-200/20'
           } transition-all hover:shadow-xl`}>
-            <h2 className={`text-2xl font-bold mb-6 flex items-center gap-3 ${
+            <h2 className={`text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 flex items-center gap-3 ${
               isDark ? 'text-white' : 'text-gray-800'
             }`}>
-              <span className="text-3xl">📝</span>
+              <span className="text-xl sm:text-2xl md:text-3xl">📝</span>
               <span>待完成任务</span>
-              <span className={`ml-2 text-sm px-3 py-1 rounded-full ${
+              <span className={`ml-2 text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full ${
                 isDark ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-600'
               }`}>
                 {filteredTodos.filter(todo => !todo.completed).length}
@@ -558,7 +569,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                     />
                     <div className="flex flex-col">
                       <span
-                        className={`text-lg transition-all ${
+                        className={`text-base sm:text-lg transition-all ${
                           todo.completed 
                             ? 'line-through text-gray-500' 
                             : isDark ? 'text-white' : 'text-gray-800'
@@ -566,7 +577,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       >
                         {todo.text}
                       </span>
-                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         {todo.category} · {new Date(todo.createdAt).toLocaleDateString()} {new Date(todo.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -626,17 +637,17 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
           </div>
 
           {/* 已完成任务 */}
-          <div className={`relative p-8 rounded-2xl shadow-lg ${
+          <div className={`relative p-4 md:p-8 rounded-2xl shadow-lg ${
             isDark ? 'bg-gray-800/50' : 'bg-white/80'
           } backdrop-blur-xl border ${
             isDark ? 'border-white/5' : 'border-gray-200/20'
           } transition-all hover:shadow-xl`}>
-            <h2 className={`text-2xl font-bold mb-6 flex items-center gap-3 ${
+            <h2 className={`text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 flex items-center gap-3 ${
               isDark ? 'text-white' : 'text-gray-800'
             }`}>
-              <span className="text-3xl">✅</span>
+              <span className="text-xl sm:text-2xl md:text-3xl">✅</span>
               <span>已完成任务</span>
-              <span className={`ml-2 text-sm px-3 py-1 rounded-full ${
+              <span className={`ml-2 text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 rounded-full ${
                 isDark ? 'bg-green-900/30 text-green-300' : 'bg-green-100 text-green-600'
               }`}>
                 {filteredTodos.filter(todo => todo.completed).length}
@@ -662,7 +673,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                     />
                     <div className="flex flex-col">
                       <span
-                        className={`text-lg transition-all ${
+                        className={`text-base sm:text-lg transition-all ${
                           todo.completed 
                             ? 'line-through text-gray-500' 
                             : isDark ? 'text-white' : 'text-gray-800'
@@ -670,7 +681,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       >
                         {todo.text}
                       </span>
-                      <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                      <span className={`text-xs sm:text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                         {todo.category} · {new Date(todo.createdAt).toLocaleDateString()} {new Date(todo.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
@@ -734,11 +745,11 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
         <div className={`relative p-6 rounded-xl shadow-lg ${
           isDark ? 'bg-gray-800/50' : 'bg-white/80'
         } backdrop-blur-sm`}>
-          <h2 className={`text-xl font-bold mb-4 flex items-center gap-2 ${
+          <h2 className={`text-lg sm:text-xl font-bold mb-3 sm:mb-4 flex items-center gap-2 ${
             isDark ? 'text-white' : 'text-gray-800'
           }`}>
             <span>🤖 AI 助手</span>
-            <span className={`text-sm px-2 py-1 rounded-full ${
+            <span className={`text-xs sm:text-sm px-2 py-0.5 sm:py-1 rounded-full ${
               isDark ? 'bg-blue-900/30 text-blue-300' : 'bg-blue-100 text-blue-600'
             }`}>Beta</span>
           </h2>

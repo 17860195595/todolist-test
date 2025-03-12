@@ -19,6 +19,7 @@ interface AIAssistantProps {
 }
 
 const AIAssistant: React.FC<AIAssistantProps> = ({ todos, isDark, onApplyAdvice, selectedTaskId }) => {
+  const [analysis, setAnalysis] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<{
@@ -36,6 +37,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ todos, isDark, onApplyAdvice,
   const [isExpanded, setIsExpanded] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const dragControls = useDragControls();
+
+  // 检查是否配置了 API Key
+  const isConfigured = !!process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 
   // 缓存检查
   const checkCache = (todo: AIAssistantProps['todos'][0]) => {
@@ -161,6 +165,11 @@ ${JSON.stringify(stats, null, 2)}
 
   // 更新分析结果
   useEffect(() => {
+    if (!isConfigured) {
+      setError('AI 助手功能暂未开启，请配置 OpenAI API Key');
+      return;
+    }
+
     if (updateTimeout) {
       clearTimeout(updateTimeout);
     }
@@ -214,7 +223,7 @@ ${JSON.stringify(stats, null, 2)}
         clearTimeout(timeout);
       }
     };
-  }, [selectedTaskId]);
+  }, [selectedTaskId, todos]);
 
   // 清除缓存的函数
   const clearCache = () => {
@@ -225,6 +234,36 @@ ${JSON.stringify(stats, null, 2)}
     setAiAnalysis({ overall: [], tasks: {} });
   };
 
+  if (!isConfigured) {
+    return (
+      <div className={`p-6 rounded-xl ${
+        isDark ? 'bg-yellow-900/20 text-yellow-200' : 'bg-yellow-50 text-yellow-800'
+      }`}>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-2xl">⚠️</span>
+          <h3 className="text-lg font-medium">AI 助手未配置</h3>
+        </div>
+        <p className="text-sm opacity-80">
+          请在环境变量中配置 NEXT_PUBLIC_OPENAI_API_KEY 以启用 AI 助手功能。
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`p-6 rounded-xl ${
+        isDark ? 'bg-red-900/20 text-red-200' : 'bg-red-50 text-red-800'
+      }`}>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-2xl">❌</span>
+          <h3 className="text-lg font-medium">出错了</h3>
+        </div>
+        <p className="text-sm opacity-80">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <AnimatePresence>
       {isExpanded ? (
@@ -232,15 +271,18 @@ ${JSON.stringify(stats, null, 2)}
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
-          className={`fixed right-0 top-0 h-screen w-80 overflow-y-auto ${
+          className={`fixed right-0 bottom-0 md:top-0 h-[70vh] md:h-screen w-full md:w-96 lg:w-[420px] overflow-y-auto ${
             isDark 
-              ? 'bg-gray-800/95 text-white border-l border-gray-700' 
-              : 'bg-white/95 text-gray-800 border-l border-gray-200'
-          } shadow-xl backdrop-blur-lg p-6`}
+              ? 'bg-gray-800/95 text-white border-t md:border-l border-gray-700' 
+              : 'bg-white/95 text-gray-800 border-t md:border-l border-gray-200'
+          } shadow-xl backdrop-blur-lg`}
         >
-          <div className="sticky top-0 z-10 pb-4 mb-4 border-b border-gray-200/20 bg-inherit">
+          {/* 头部区域 */}
+          <div className={`sticky top-0 z-10 p-4 md:p-6 border-b ${
+            isDark ? 'border-gray-700/50 bg-gray-800/95' : 'border-gray-200/50 bg-white/95'
+          } backdrop-blur-xl`}>
             <div className="flex justify-between items-center">
-              <h2 className={`text-xl font-bold flex items-center ${
+              <h2 className={`text-lg md:text-xl font-bold flex items-center ${
                 isDark ? 'text-blue-300' : 'text-blue-600'
               }`}>
                 <span className="text-2xl mr-2">🤖</span>
@@ -256,178 +298,171 @@ ${JSON.stringify(stats, null, 2)}
                 )}
               </h2>
               <div className="flex items-center gap-2">
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={clearCache}
-                  className={`text-sm px-3 py-1 rounded-full transition-all ${
+                  className={`text-sm px-3 py-1.5 rounded-lg transition-all ${
                     isDark 
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                      ? 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-200' 
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                   }`}
                 >
                   🔄 刷新
-                </button>
-                <button
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => setIsExpanded(false)}
-                  className={`text-sm px-2 py-1 rounded-full transition-all ${
+                  className={`text-sm px-3 py-1.5 rounded-lg transition-all ${
                     isDark 
-                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' 
+                      ? 'bg-gray-700/50 hover:bg-gray-600/50 text-gray-200' 
                       : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                   }`}
                   title="收起"
                 >
-                  ⬅️
-                </button>
+                  收起 ⬅️
+                </motion.button>
               </div>
             </div>
           </div>
 
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`p-4 rounded-lg mb-4 ${
-                isDark ? 'bg-red-900/30 text-red-200' : 'bg-red-50 text-red-600'
-              }`}
-            >
-              <div className="flex items-start">
-                <span className="mr-2">⚠️</span>
-                <div>
-                  {error}
-                  {error.includes('429') && (
-                    <div className="mt-2 text-sm opacity-80">
-                      建议：
-                      <ul className="list-disc list-inside mt-1">
-                        <li>减少任务更新频率</li>
-                        <li>检查 OpenAI API 账户额度</li>
-                        <li>稍后再试</li>
-                      </ul>
-                    </div>
-                  )}
+          {/* 内容区域 */}
+          <div className="p-4 md:p-6 space-y-6">
+            {/* 整体分析 */}
+            {!selectedTaskId && (
+              <div className="space-y-4">
+                <h3 className={`text-sm font-medium flex items-center gap-2 ${
+                  isDark ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <span>📊</span>
+                  整体分析
+                </h3>
+                <AnimatePresence>
+                  {aiAnalysis.overall.map((item, index) => (
+                    <motion.div
+                      key={`general-${index}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="relative group"
+                    >
+                      <div className={`p-4 rounded-xl text-sm ${
+                        isDark 
+                          ? 'bg-gray-700/50 hover:bg-gray-700/70' 
+                          : 'bg-gray-50 hover:bg-gray-100'
+                        } transition-all cursor-default`}
+                      >
+                        {item}
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => onApplyAdvice(item)}
+                          className={`absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 rounded-lg ${
+                            isDark
+                              ? 'bg-blue-500/20 hover:bg-blue-500/40 text-blue-300'
+                              : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                          }`}
+                          title="应用这条建议"
+                        >
+                          📌 应用
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* 单个任务分析 */}
+            {selectedTaskId && todos.length > 0 && (
+              <div className="space-y-4">
+                <h3 className={`text-sm font-medium flex items-center gap-2 ${
+                  isDark ? 'text-gray-400' : 'text-gray-500'
+                }`}>
+                  <span>🔍</span>
+                  任务分析
+                </h3>
+                <div className="space-y-4">
+                  {todos
+                    .filter(todo => todo.id === selectedTaskId)
+                    .map((todo) => {
+                      const taskAdvice = aiAnalysis.tasks[todo.id] || [];
+                      if (taskAdvice.length === 0) return null;
+                      
+                      return (
+                        <motion.div
+                          key={`task-${todo.id}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`rounded-xl overflow-hidden ${
+                            isDark 
+                              ? 'bg-gray-700/30' 
+                              : 'bg-gray-50'
+                          }`}
+                        >
+                          <div className={`p-4 ${
+                            isDark ? 'bg-gray-700/50' : 'bg-gray-100/50'
+                          }`}>
+                            <div className={`font-medium ${
+                              isDark ? 'text-blue-300' : 'text-blue-600'
+                            }`}>
+                              {todo.text}
+                            </div>
+                          </div>
+                          <div className="p-4 space-y-3">
+                            {taskAdvice.map((advice, index) => (
+                              <div 
+                                key={index}
+                                className="relative group"
+                              >
+                                <div className={`p-3 rounded-lg ${
+                                  isDark 
+                                    ? 'bg-gray-800/30 text-gray-300' 
+                                    : 'bg-white text-gray-600'
+                                }`}>
+                                  {advice}
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => onApplyAdvice(advice)}
+                                    className={`absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 rounded-lg ${
+                                      isDark
+                                        ? 'bg-blue-500/20 hover:bg-blue-500/40 text-blue-300'
+                                        : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
+                                    }`}
+                                    title="应用这条建议"
+                                  >
+                                    📌 应用
+                                  </motion.button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
                 </div>
               </div>
-            </motion.div>
-          )}
-          
-          {/* 整体分析 */}
-          {!selectedTaskId && (
-            <div className="space-y-3 mb-6">
-              <h3 className={`text-sm font-medium mb-3 ${
-                isDark ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                �� 整体分析
-              </h3>
-              <AnimatePresence>
-                {aiAnalysis.overall.map((item, index) => (
-                  <motion.div
-                    key={`general-${index}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="relative group"
-                  >
-                    <div className={`p-3 rounded-lg text-sm ${
-                      isDark 
-                        ? 'bg-gray-700/50 hover:bg-gray-700/70' 
-                        : 'bg-gray-50 hover:bg-gray-100'
-                    } transition-all cursor-default`}
-                    >
-                      {item}
-                    </div>
-                    <button
-                      onClick={() => onApplyAdvice(item)}
-                      className={`absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
-                        isDark
-                          ? 'bg-blue-500/20 hover:bg-blue-500/40 text-blue-300'
-                          : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
-                      }`}
-                      title="应用这条建议"
-                    >
-                      📌
-                    </button>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+            )}
 
-          {/* 单个任务分析 */}
-          {selectedTaskId && todos.length > 0 && (
-            <div>
-              <h3 className={`text-sm font-medium mb-3 flex items-center justify-between ${
-                isDark ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                🔍 任务分析
-              </h3>
-              <div className="space-y-3">
-                {todos
-                  .filter(todo => todo.id === selectedTaskId)
-                  .map((todo) => {
-                    const taskAdvice = aiAnalysis.tasks[todo.id] || [];
-                    if (taskAdvice.length === 0) return null;
-                    
-                    return (
-                      <motion.div
-                        key={`task-${todo.id}`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`p-3 rounded-lg text-sm ${
-                          isDark 
-                            ? 'bg-gray-700/50' 
-                            : 'bg-gray-50'
-                        }`}
-                      >
-                        <div className={`font-medium mb-2 ${
-                          isDark ? 'text-blue-300' : 'text-blue-600'
-                        }`}>
-                          {todo.text}
-                        </div>
-                        <div className="space-y-2">
-                          {taskAdvice.map((advice, index) => (
-                            <div 
-                              key={index}
-                              className="relative group"
-                            >
-                              <div className={`p-2 rounded ${
-                                isDark ? 'text-gray-300' : 'text-gray-600'
-                              }`}>
-                                {advice}
-                              </div>
-                              <button
-                                onClick={() => onApplyAdvice(advice)}
-                                className={`absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded ${
-                                  isDark
-                                    ? 'bg-blue-500/20 hover:bg-blue-500/40 text-blue-300'
-                                    : 'bg-blue-100 hover:bg-blue-200 text-blue-600'
-                                }`}
-                                title="应用这条建议"
-                              >
-                                📌
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
-
-          {todos.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-8"
-            >
-              <div className="text-4xl mb-3">📝</div>
-              <div className={`text-sm ${
-                isDark ? 'text-gray-400' : 'text-gray-500'
-              }`}>
-                还没有任务，开始添加一些任务来获取建议吧！
-              </div>
-            </motion.div>
-          )}
+            {/* 空状态 */}
+            {todos.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className={`text-center py-12 rounded-xl border-2 border-dashed ${
+                  isDark ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'
+                }`}
+              >
+                <div className="text-4xl mb-4">📝</div>
+                <div className="text-sm">
+                  还没有任务，开始添加一些任务来获取建议吧！
+                </div>
+              </motion.div>
+            )}
+          </div>
         </motion.div>
       ) : (
         <motion.div
@@ -435,6 +470,7 @@ ${JSON.stringify(stats, null, 2)}
           dragControls={dragControls}
           dragMomentum={false}
           dragElastic={0.1}
+          whileHover={{ scale: 1.05 }}
           whileDrag={{ scale: 1.1 }}
           animate={{ x: position.x, y: position.y }}
           onDragEnd={(event, info) => {
@@ -443,11 +479,11 @@ ${JSON.stringify(stats, null, 2)}
               y: position.y + info.offset.y
             });
           }}
-          className={`fixed right-6 bottom-6 p-4 rounded-full shadow-lg cursor-move ${
+          className={`fixed right-4 bottom-20 p-4 rounded-full shadow-lg cursor-move z-50 ${
             isDark 
-              ? 'bg-gray-800 text-white hover:bg-gray-700' 
-              : 'bg-white text-gray-800 hover:bg-gray-100'
-          } transition-colors`}
+              ? 'bg-gray-800/95 text-white hover:bg-gray-700/95' 
+              : 'bg-white/95 text-gray-800 hover:bg-gray-100/95'
+          } backdrop-blur-sm transition-colors`}
           onClick={() => setIsExpanded(true)}
         >
           <div className="relative">
