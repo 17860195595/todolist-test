@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  username  String   @unique
+  password  String
+  nickname  String
+  email     String   @unique
+  avatar    String
+  createdAt DateTime @default(now())
+  settings  UserSettings?
+  todos     Todo[]
+}
+
+model UserSettings {
+  id                    String   @id @default(uuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id])
+  theme                String   @default("system")
+  language             String   @default("zh")
+  todoSortBy           String   @default("createdAt")
+  todoSortOrder        String   @default("desc")
+  showCompletedTodos   Boolean  @default(true)
+  enableAIAssistant    Boolean  @default(true)
+  enableEmailNotification Boolean @default(false)
+  defaultPriority      String   @default("medium")
+  defaultCategory      String   @default("个人")
+}
+
+model Todo {
+  id        String   @id @default(uuid())
+  text      String
+  completed Boolean  @default(false)
+  priority  String
+  category  String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+} 
