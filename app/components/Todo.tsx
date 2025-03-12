@@ -260,7 +260,9 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
       onRemoveAdvice={(index) => setAppliedAdvices(prev => prev.filter((_, i) => i !== index))}
       stats={stats}
     >
-      <div className="p-4 md:p-8 space-y-6 md:space-y-8">
+      <div className={`min-h-screen p-4 md:p-8 space-y-6 md:space-y-8 ${
+        isDark ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
         {/* 用户信息区域 */}
         <div className={`flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${
           isDark ? 'text-white' : 'text-gray-800'
@@ -357,7 +359,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
 
           {/* 主输入框 */}
           <div className="px-6 md:px-8 pb-6 md:pb-8">
-            <div className="relative">
+            <div className="relative flex items-center">
               <input
                 type="text"
                 value={inputText}
@@ -375,13 +377,13 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowOptions(!showOptions)}
-                className={`absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${
+                className={`absolute right-4 flex items-center justify-center w-10 h-10 rounded-lg transition-all ${
                   isDark
-                    ? 'hover:bg-gray-700/50 text-gray-300'
-                    : 'hover:bg-gray-100 text-gray-600'
+                    ? 'hover:bg-gray-700/50 text-gray-300 bg-gray-800/30'
+                    : 'hover:bg-gray-100 text-gray-600 bg-white/50'
                 }`}
               >
-                {showOptions ? '⬆️' : '⬇️'}
+                <span className="text-2xl leading-none">{showOptions ? '⬆️' : '⬇️'}</span>
               </motion.button>
             </div>
           </div>
