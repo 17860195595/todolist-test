@@ -395,20 +395,20 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                 exit={{ opacity: 0, height: 0 }}
                 className={`px-6 md:px-8 pb-6 md:pb-8 space-y-4`}
               >
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                   {/* 优先级选择 */}
-                  <div className={`flex items-center gap-3 px-4 md:px-5 py-2 md:py-3 rounded-xl ${
+                  <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl ${
                     isDark ? 'bg-gray-800/30' : 'bg-white/50'
-                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
+                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'} w-full sm:w-auto`}>
                     <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                       优先级
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5 sm:gap-2">
                       {['low', 'medium', 'high'].map((p) => (
                         <button
                           key={p}
                           onClick={() => setPriority(p as 'low' | 'medium' | 'high')}
-                          className={`px-2 md:px-3 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                          className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-sm transition-all ${
                             priority === p
                               ? isDark
                                 ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
@@ -429,20 +429,20 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   </div>
 
                   {/* 分类选择 */}
-                  <div className={`flex items-center gap-3 px-4 md:px-5 py-2 md:py-3 rounded-xl ${
+                  <div className={`flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl ${
                     isDark ? 'bg-gray-800/30' : 'bg-white/50'
-                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'}`}>
-                    <span className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
+                  } border ${isDark ? 'border-gray-700/30' : 'border-gray-200/30'} w-full sm:w-auto`}>
+                    <span className={`text-sm font-medium whitespace-nowrap ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
                       分类
                     </span>
                     {isAddingCategory ? (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-1">
                         <input
                           type="text"
                           value={customCategory}
                           onChange={(e) => setCustomCategory(e.target.value)}
                           placeholder="新分类名称..."
-                          className={`px-4 py-1.5 rounded-lg text-sm ${
+                          className={`flex-1 px-3 py-1.5 rounded-lg text-sm ${
                             isDark
                               ? 'bg-gray-700/50 text-gray-200 border-gray-600/50'
                               : 'bg-white text-gray-700 border-gray-200/50'
@@ -452,7 +452,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={handleCustomCategorySubmit}
-                          className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-sm transition-all whitespace-nowrap ${
                             isDark
                               ? 'bg-green-500/20 text-green-300 hover:bg-green-500/30'
                               : 'bg-green-100 text-green-600 hover:bg-green-200'
@@ -464,7 +464,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={handleCancelCustomCategory}
-                          className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
+                          className={`px-3 py-1.5 rounded-lg text-sm transition-all whitespace-nowrap ${
                             isDark
                               ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
                               : 'bg-red-100 text-red-600 hover:bg-red-200'
@@ -474,12 +474,12 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                         </motion.button>
                       </div>
                     ) : (
-                      <div className="flex gap-2 flex-wrap">
+                      <div className="flex gap-2 flex-wrap flex-1">
                         {allCategories.map((cat) => (
                           <button
                             key={cat}
                             onClick={() => setCategory(cat)}
-                            className={`px-3 md:px-4 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                            className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-sm transition-all ${
                               category === cat
                                 ? isDark
                                   ? 'bg-blue-500/20 text-blue-300 border-blue-500/30'
@@ -494,7 +494,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                         ))}
                         <button
                           onClick={() => setIsAddingCategory(true)}
-                          className={`px-3 md:px-4 py-1 md:py-1.5 rounded-lg text-sm transition-all ${
+                          className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-sm transition-all ${
                             isDark
                               ? 'bg-gray-700/30 text-gray-400 hover:bg-gray-700/50'
                               : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
@@ -512,7 +512,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   whileTap={{ scale: 0.98 }}
                   onClick={editingId ? saveEdit : addTodo}
                   disabled={!inputText.trim()}
-                  className={`w-full md:w-auto px-6 md:px-8 py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-all flex items-center justify-center gap-2 ${
                     !inputText.trim() 
                       ? isDark 
                         ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' 
@@ -523,7 +523,7 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   } shadow-lg`}
                 >
                   <span className="text-xl">{editingId ? '💾' : '✨'}</span>
-                  <span className="font-medium">{editingId ? '保存更改' : '添加任务'}</span>
+                  <span className="font-medium text-sm sm:text-base">{editingId ? '保存更改' : '添加任务'}</span>
                 </motion.button>
               </motion.div>
             )}
@@ -558,16 +558,16 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   animate="visible"
                   exit={{ opacity: 0, y: 20 }}
                   whileHover={{ scale: 1.02, translateX: 5 }}
-                  className={`flex items-center justify-between p-5 rounded-xl border transition-all ${getPriorityColor(todo.priority)} hover:shadow-md`}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-xl border transition-all ${getPriorityColor(todo.priority)} hover:shadow-md`}
                 >
-                  <div className="flex items-center flex-1">
+                  <div className="flex items-start sm:items-center flex-1 w-full">
                     <input
                       type="checkbox"
                       checked={todo.completed}
                       onChange={() => toggleTodo(todo.id)}
-                      className="w-6 h-6 mr-4 rounded border-2 cursor-pointer transition-all"
+                      className="w-5 h-5 sm:w-6 sm:h-6 mr-3 sm:mr-4 mt-1 sm:mt-0 rounded border-2 cursor-pointer transition-all"
                     />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col flex-1">
                       <span
                         className={`text-base sm:text-lg transition-all ${
                           todo.completed 
@@ -582,12 +582,12 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-0 w-full sm:w-auto justify-end">
                     <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => startEditing(todo.id)}
-                      className={`px-4 py-2 rounded-lg transition-all ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition-all ${
                         isDark
                           ? 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30'
                           : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
@@ -596,10 +596,10 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       ✏️ 编辑
                     </motion.button>
                     <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => deleteTodo(todo.id)}
-                      className={`px-4 py-2 rounded-lg transition-all ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition-all ${
                         isDark
                           ? 'bg-red-600/20 text-red-300 hover:bg-red-600/30'
                           : 'bg-red-100 text-red-600 hover:bg-red-200'
@@ -609,10 +609,10 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                     </motion.button>
                     <button
                       onClick={() => setSelectedTaskId(todo.id)}
-                      className={`p-2 rounded-full transition-colors ${
+                      className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                         isDark
-                          ? 'hover:bg-gray-700 text-gray-300'
-                          : 'hover:bg-gray-100 text-gray-600'
+                          ? 'hover:bg-gray-700 text-gray-300 bg-gray-800/30'
+                          : 'hover:bg-gray-100 text-gray-600 bg-gray-50'
                       }`}
                       title="分析此任务"
                     >
@@ -662,16 +662,16 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                   animate="visible"
                   exit={{ opacity: 0, y: 20 }}
                   whileHover={{ scale: 1.02, translateX: 5 }}
-                  className={`flex items-center justify-between p-5 rounded-xl border transition-all ${getPriorityColor(todo.priority)} hover:shadow-md`}
+                  className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 rounded-xl border transition-all ${getPriorityColor(todo.priority)} hover:shadow-md`}
                 >
-                  <div className="flex items-center flex-1">
+                  <div className="flex items-start sm:items-center flex-1 w-full">
                     <input
                       type="checkbox"
                       checked={todo.completed}
                       onChange={() => toggleTodo(todo.id)}
-                      className="w-6 h-6 mr-4 rounded border-2 cursor-pointer transition-all"
+                      className="w-5 h-5 sm:w-6 sm:h-6 mr-3 sm:mr-4 mt-1 sm:mt-0 rounded border-2 cursor-pointer transition-all"
                     />
-                    <div className="flex flex-col">
+                    <div className="flex flex-col flex-1">
                       <span
                         className={`text-base sm:text-lg transition-all ${
                           todo.completed 
@@ -686,12 +686,12 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap gap-2 sm:gap-3 mt-3 sm:mt-0 w-full sm:w-auto justify-end">
                     <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => startEditing(todo.id)}
-                      className={`px-4 py-2 rounded-lg transition-all ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition-all ${
                         isDark
                           ? 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30'
                           : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
@@ -700,10 +700,10 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                       ✏️ 编辑
                     </motion.button>
                     <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => deleteTodo(todo.id)}
-                      className={`px-4 py-2 rounded-lg transition-all ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-sm rounded-lg transition-all ${
                         isDark
                           ? 'bg-red-600/20 text-red-300 hover:bg-red-600/30'
                           : 'bg-red-100 text-red-600 hover:bg-red-200'
@@ -713,10 +713,10 @@ const Todo: React.FC<TodoProps> = ({ isDark }) => {
                     </motion.button>
                     <button
                       onClick={() => setSelectedTaskId(todo.id)}
-                      className={`p-2 rounded-full transition-colors ${
+                      className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
                         isDark
-                          ? 'hover:bg-gray-700 text-gray-300'
-                          : 'hover:bg-gray-100 text-gray-600'
+                          ? 'hover:bg-gray-700 text-gray-300 bg-gray-800/30'
+                          : 'hover:bg-gray-100 text-gray-600 bg-gray-50'
                       }`}
                       title="分析此任务"
                     >
